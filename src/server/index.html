@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伊微微异步日志存储系统</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background: #f5f6fa;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        input[type="file"] {
+            border: 2px dashed #ddd;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .storage-type {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .storage-type label {
+            background: #f0f0f0;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .storage-type input:checked+label {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .file-list {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .file-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .file-type {
+            background: #eee;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📁伊微微异步日志存储系统</h1>
+
+        <div class="upload-section">
+            <div class="form-group">
+                <label>选择文件</label>
+                <input type="file" id="fileInput">
+            </div>
+
+            <div class="form-group">
+                <label>存储类型</label>
+                <div class="storage-type">
+                    <div>
+                        <input type="radio" name="storageType" id="deepStorage" value="deep" checked>
+                        <label for="deepStorage">深度存储</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="storageType" id="lowStorage" value="low">
+                        <label for="lowStorage">普通存储</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="uploadFile()">
+                ⬆️ 开始上传
+            </button>
+        </div>
+
+        <!-- 文件列表动态插入点 -->
+        {{FILE_LIST}}
+    </div>
+
+    <script>
+        // 动态配置注入
+        const config = {
+            backendUrl: '{{BACKEND_URL}}'
+        };
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const storageType = document.querySelector('input[name="storageType"]:checked').value;
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('请先选择文件');
+                return;
+            }
+
+            // // Base64 编码
+            const encodedFilename = btoa(unescape(encodeURIComponent(file.name)));
+            console.log("Base64 编码结果:", encodedFilename);
+
+            try {
+                const response = await fetch(`${config.backendUrl}/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'StorageType': storageType,
+                        'FileName': encodedFilename // 使用 Base64 编码
+                    },
+                    body: file
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert(`上传失败: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('上传错误:', error);
+                alert('网络连接失败');
+            }
+        }
+
+        function downloadFile(fileId) {
+            window.location = `${config.backendUrl}/download?id=${fileId}`;
+        }
+    </script>
+</body>
+
+</html>
