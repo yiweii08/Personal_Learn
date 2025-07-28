@@ -74,7 +74,7 @@ private:
             std::unique_ptr<Buffer> buffer_to_process;
             {
                 std::unique_lock<std::mutex> lock(mtx_producer_);
-                // 采纳您的优化：使用 wait 即时响应
+                // 使用 wait 即时响应
                 cond_main_loop_.wait(lock, [this] {
                     return stop_flag_.load(std::memory_order_relaxed) || !producer_buffer_->IsEmpty();
                 });
@@ -160,7 +160,7 @@ private:
         while (true) {
             {
                 std::unique_lock<std::mutex> lock(mtx_reorder_);
-                // 采纳您的优化：增加超时机制
+                // 超时机制
                 cond_io_.wait_for(lock, std::chrono::milliseconds(100), [this] {
                     return (formatter_threads_active_.load(std::memory_order_relaxed) == 0 && reorder_buffer_.empty()) ||
                            reorder_buffer_.count(next_seq_to_write_);
@@ -178,7 +178,7 @@ private:
             }
             
             if (!batch_buffer.empty()) {
-                // 采纳您的优化：添加错误处理
+                // 错误处理
                 for (const auto& flusher : flushers_) {
                     try {
                         flusher->Flush(batch_buffer.c_str(), batch_buffer.size());
