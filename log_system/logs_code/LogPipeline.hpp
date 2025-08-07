@@ -108,15 +108,15 @@ private:
                 });
 
                 if (stop_flag_.load(std::memory_order_relaxed) && task_queue_.empty()) {
-                    break; // 正确的退出条件
+                    break; // 退出条件看看
                 }
                 
-                // 坚持安全、简单的“一次取一个任务”模型
+                // 一次取一个
                 current_task_ptr = std::make_unique<LogBatchTask>(std::move(task_queue_.front()));
                 task_queue_.pop();
             }
 
-            // 安全地在锁外处理任务
+            // 锁外处理任务，得看看安全不安全
             std::atomic<size_t> task_consume_idx(0);
             size_t task_size = current_task_ptr->buffer->Size();
 
@@ -183,7 +183,7 @@ private:
                     try {
                         flusher->Flush(batch_buffer.c_str(), batch_buffer.size());
                     } catch (const std::exception& e) {
-                        // 可以添加错误日志记录，但要避免在日志系统内部无限递归
+                        // 这个后面得再看一看，可能要改
                         // fprintf(stderr, "Log flush error: %s\n", e.what());
                     }
                 }
@@ -197,23 +197,23 @@ private:
             return;
         }
         
-        // 1. 唤醒并等待主循环线程结束
+        // 唤醒并等待主循环线程结束
         cond_main_loop_.notify_all();
         main_loop_thread_.join();
         if (backup_thread_pool_) {
-            // ThreadPool的析构函数会等待任务完成
+            // 析构函数需要等待任务完成
             backup_thread_pool_.reset();
         }
 
 
 
-        // 2. 唤醒所有格式化线程，让它们处理完队列中的剩余任务
+        // 唤醒所有格式化线程，处理完队列中的剩余任务
         cond_task_queue_.notify_all();
         for (auto& t : formatter_threads_) {
             t.join();
         }
         
-        // 3. 所有上游都已停止，最后唤醒并等待IO线程完成收尾工作
+        // 相当于最后的收为工作
         cond_io_.notify_all();
         io_thread_.join();
     }
