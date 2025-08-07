@@ -9,9 +9,9 @@
 #include "Level.hpp"
 #include "Message.hpp"
 #include "LogFlush.hpp"
-#include "LogPipeline.hpp" // 依赖新的 Pipeline
-#include "ThreadPoll.hpp"   // 依赖外部线程池
-#include "backlog/CliBackupLog.hpp" // 依赖备份函数
+#include "LogPipeline.hpp" 
+#include "ThreadPoll.hpp"   
+#include "backlog/CliBackupLog.hpp" 
 
 // 远程备份功能依赖的外部全局线程池指针
 // extern ThreadPool *tp;
@@ -26,14 +26,14 @@ namespace mylog
         // 构造函数：只接收日志器名和落地器列表
         AsyncLogger(const std::string& logger_name, const std::vector<LogFlush::ptr>& flushs)
             : logger_name_(logger_name),
-              pipeline_(std::make_shared<LogPipeline>(flushs)) // 创建并持有 Pipeline
+              pipeline_(std::make_shared<LogPipeline>(flushs)) // 创建并chiyou
         {}
 
         virtual ~AsyncLogger() = default;
 
         std::string Name() { return logger_name_; }
 
-        // 为了代码简洁和统一，我们将可变参数的处理逻辑集中到一个私有方法中
+        // 将可变参数的处理逻辑放到一个私有方法中
         void Log(LogLevel::value level, const char* file, size_t line, const char* format, ...)
         {
             va_list va;
@@ -43,10 +43,10 @@ namespace mylog
         }
 
     private:
-        // 私有辅助函数，处理可变参数并封装为 LogMessage
+        // 处理可变参数并封装为 LogMessage
         void Handle(LogLevel::value level, const char* file, size_t line, const char* format, va_list va)
         {
-            // 使用 vsnprintf 避免内存泄漏和不可移植问题
+            // 使用 vsnprintf 避免内存泄漏
             va_list va_copy;
             va_copy(va_copy, va);
             int len = vsnprintf(nullptr, 0, format, va_copy);
@@ -72,17 +72,16 @@ namespace mylog
             //         std::string data_for_backup = msg->format();
             //         tp->enqueue(start_backup, data_for_backup);
             //     } catch(const std::runtime_error&) {
-            //         // 外部线程池已关闭，忽略
+            //         // 后面再说，再看一看
             //     }
             // }
             // ---------------------------------------------
             
-            // 将主日志流的消息推入 Pipeline
+            // 将主日志流的消息压入
             pipeline_->Push(std::move(msg));
         }
 
     public:
-        // 为用户提供简洁的接口，内部调用 Log 方法
         void Debug(const std::string &file, size_t line, const std::string format, ...) {
             va_list va;
             va_start(va, format);
@@ -120,7 +119,6 @@ namespace mylog
         std::shared_ptr<LogPipeline> pipeline_;
     };
 
-    // LoggerBuilder 的代码无需修改，它与这些底层实现无关
     class LoggerBuilder
     {
     public:
