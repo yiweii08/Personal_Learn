@@ -2,11 +2,13 @@
 #include<unordered_map>
 #include"Util.hpp"
 
+// 这个就是没变
+
 namespace my_storage {
 	class DataManager {
 	private:
-		std::string storage_file_;//for storage the file info those you uploaded
-		//key:filepath  val:unique identification represents storage info for a file
+		std::string storage_file_;
+
 		std::unordered_map<std::string, std::string> table_;
 	public:
 		DataManager(const std::string storage_file) :storage_file_(storage_file) {
@@ -40,11 +42,11 @@ namespace my_storage {
 
 			//Parse file content to get storage info for each file
 			std::vector<std::string> arry;
-			Split(content, "\n", &arry);// Split according to \n to get the storage information of each file
+			Split(content, "\n", &arry);
 			for (auto& e : arry) {
 				std::vector<std::string> s;
-				Split(e, " ", &s);// Split according to "" to get the key-value of each file
-				table_[s[0]] = s[1];//s[0] stores the key and s[1] stores the value
+				Split(e, " ", &s);
+				table_[s[0]] = s[1];
 			}
 			return true;
 		}
@@ -77,4 +79,5 @@ namespace my_storage {
 			return false;
 		}
 	};
+
 }
