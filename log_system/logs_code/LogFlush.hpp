@@ -72,7 +72,7 @@ namespace mylog{
 
         void Flush(const char *data, size_t len) override
         {
-            // 确认文件大小不满足滚动需求
+            // 看一下文件的大小
             InitLogFile();
             // 向文件写入内容
             fwrite(data, 1, len, fs_);
@@ -110,8 +110,7 @@ namespace mylog{
                 cur_size_ = 0;
             }
         }
-
-        // 构建落地的滚动日志文件名称
+        //构建日志名称
         std::string CreateFilename()
         {
             time_t time_ = Util::Date::Now();
