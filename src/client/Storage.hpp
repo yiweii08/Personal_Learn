@@ -13,7 +13,7 @@ using std::cerr;
 
 const unsigned short server_port_g = 8081;
 const std::string server_ip_g = "127.0.0.1";
-const std::string storage_filename_g = "./storage.dat";//for storage uploaded files info
+const std::string storage_filename_g = "./storage.dat";
 
 namespace my_storage {
 	bool if_upload_success = false;
@@ -63,14 +63,12 @@ namespace my_storage {
 				event_base_free(base);
 				return false;
 			}
-			//bufferevent connect http server
+		
 			bufferevent* bev = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
 			evhttp_connection* evcon = evhttp_connection_base_bufferevent_new(base, NULL, bev, server_ip_g.c_str(), server_port_g);
 
-			//http_client request callback set
 			evhttp_request* req = evhttp_request_new(upload_callback, base);
-
-			//set req header
+			
 			evkeyvalq* output_headers = evhttp_request_get_output_headers(req);
 			evhttp_add_header(output_headers, "Host", server_ip_g.c_str());
 			evhttp_add_header(output_headers, "FileName", fu.FileName().c_str());
@@ -82,7 +80,7 @@ namespace my_storage {
 				evhttp_add_header(output_headers, "StorageType", "deep");
 			}
 
-			//read filedata and make request
+		       //  读数据
 			std::string body;
 			fu.GetContent(&body);
 			evbuffer* output = evhttp_request_get_output_buffer(req);
@@ -103,28 +101,26 @@ namespace my_storage {
 
 		bool IfNeedUpload(const std::string& filename) {
 			std::string old;
-			if (dm_->GetOneByKey(filename, &old)==true) {//true indicates that the storage file info already exists
+			if (dm_->GetOneByKey(filename, &old)==true) {
 				if (GetFileIdentifier(filename) == old)
 					return false;
 			}
 
-			// Upload a file that has not been modified for a while
+
 			FileUtil fu(filename);
 			if (time(NULL) - fu.LastModifyTime() < 5) {
-				// just changed in 5 seconds，think the file is still being changed
 				return false;
 			}
 			return true;
 		}
 		bool RunModule() {
 			while (1) {
-				//iterate to get all files in the specified folder,and judge need upload or not
 				FileUtil low(low_storage_dir_);
 				FileUtil deep(deep_storage_dir_);
 				std::vector<std::string> arry;
 				low.ScanDirectory(&arry);
 				deep.ScanDirectory(&arry);
-				//2. upload
+				
 				for (auto& a : arry) {
 					if (IfNeedUpload(a) == false) {
 						continue;
@@ -138,8 +134,9 @@ namespace my_storage {
 						std::cout << a << " upload failed!\n";
 					}
 				}
-				Sleep(1);//avoid waste cpu 
+				Sleep(1);
 			}
 		}
 	};
+
 }
