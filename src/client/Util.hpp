@@ -118,8 +118,7 @@ namespace my_storage
 			return true;
 		}
 
-		//there is three function about dir
-		//c++17，need include <filesystem>. namespace fs = std::filesystem;
+		// 有关C++17文件系统，现学现用就行
 		bool Exists()
 		{
 			return fs::exists(filename_);
@@ -144,4 +143,5 @@ namespace my_storage
 			return true;
 		}
 	};
+
 }
