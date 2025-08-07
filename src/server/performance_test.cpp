@@ -8,7 +8,7 @@
 #include <sstream>
 
 // 全局变量，用于初始化日志系统
-// ThreadPool* tp = nullptr; // 已不再需要
+// ThreadPool* tp = nullptr; 
 mylog::Util::JsonData* g_conf_data;
 
 void log_system_module_init()
@@ -72,10 +72,8 @@ int main(int argc, char* argv[]) {
     auto api_end_time = std::chrono::high_resolution_clock::now();
 
     std::cout << "All log APIs returned. Waiting for logs to be flushed to disk..." << std::endl;
-    // 释放logger，触发析构和刷盘
+    // 释放logger，析构和shuapan
     logger.reset();
-    // 理想情况下，应有一个全局的Shutdown来确保所有日志器都被正确处理
-    // mylog::LoggerManager::GetInstance().Shutdown();
 
     auto flush_end_time = std::chrono::high_resolution_clock::now();
 
