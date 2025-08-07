@@ -12,7 +12,7 @@
 
 #include <regex>
 
-#include "base64.h" // 来自 cpp-base64 库
+#include "base64.h" 
 
 extern storage::DataManager *data_;
 namespace storage
@@ -55,7 +55,7 @@ namespace storage
                 return false;
             }
             // 设定回调函数
-            // 指定generic callback，也可以为特定的URI指定callback
+            // 指定generic callback，也可以为特定的URI指定callback，
             evhttp_set_gencb(httpd, GenHandler, NULL);
 
             if (base)
@@ -216,8 +216,6 @@ namespace storage
             return tmp;
         }
 
-        // 前端代码处理函数
-        // 在渲染函数中直接处理StorageInfo
         static std::string generateModernFileList(const std::vector<StorageInfo> &files)
         {
             std::stringstream ss;
