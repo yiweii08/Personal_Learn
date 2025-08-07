@@ -1,5 +1,4 @@
-#include "../../log_system/logs_code/backlog/CliBackupLog.hpp" // 包含对应的头文件
-
+#include "../../log_system/logs_code/backlog/CliBackupLog.hpp" 
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -11,15 +10,13 @@
 #include <unistd.h>
 #include <cerrno> // for errno
 
-#include "../../log_system/logs_code/Util.hpp" // 引入Util来使用全局配置
+#include "../../log_system/logs_code/Util.hpp" 
 
 // 声明外部全局配置变量
 extern mylog::Util::JsonData *g_conf_data;
 
-// 函数的完整实现放在 .cpp 文件中
 void start_backup(const std::string &message)
 {
-    // 1. create socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
     {
@@ -46,7 +43,6 @@ void start_backup(const std::string &message)
         }
     }
 
-    // 3. 连接成功
     char buffer[1024];
     if (-1 == write(sock, message.c_str(), message.size()))
     {
