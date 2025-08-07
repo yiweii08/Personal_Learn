@@ -1,21 +1,18 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <memory>       // 引入 memory 以使用 std::unique_ptr
-#include "Message.hpp"  // 依赖重构后的 Message.hpp
+#include <memory>       
+#include "Message.hpp" 
 
 namespace mylog
 {
-    // 不再需要依赖全局配置文件来管理缓冲区大小，std::vector 会自动管理内存
     // extern mylog::Util::JsonData* g_conf_data;
 
     class Buffer
     {
     public:
-        // 构造函数，可以预分配一定容量以提高性能
         Buffer() {
-            // 预分配空间可以减少 vector 在 Push 过程中的多次重新分配开销。
-            // 这是一个可以根据实际场景调整的优化点。
+            // 预分配空间
             buffer_.reserve(1024);
         }
 
@@ -39,7 +36,6 @@ namespace mylog
         }
 
         // 与另一个缓冲区交换内容。
-        // 这是实现“双缓冲无锁交换”的核心操作，效率极高。
         void Swap(Buffer& other)
         {
             buffer_.swap(other.buffer_);
@@ -52,7 +48,7 @@ namespace mylog
             buffer_.clear();
         }
 
-        // 提供对内部元素的访问（为消费者线程提供）
+        // 提供对内部元素的访问
         // 返回 const 引用，防止外部修改指针
         const std::unique_ptr<LogMessage>& at(size_t index) const
         {
@@ -60,7 +56,6 @@ namespace mylog
         }
 
     private:
-        // 核心数据结构：一个存储 LogMessage 智能指针的 vector。
         std::vector<std::unique_ptr<LogMessage>> buffer_;
 
     };
