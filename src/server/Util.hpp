@@ -64,8 +64,6 @@ namespace storage
     public:
         FileUtil(const std::string &filename) : filename_(filename) {}
 
-        ////////////////////////////////////////////
-        // 文件操作
         //  获取文件大小
         int64_t FileSize()
         {
@@ -173,7 +171,6 @@ namespace storage
             return true;
         }
 
-        //////////////////////////////////////////////
         // 压缩操作
         //  压缩文件
         bool Compress(const std::string &content, int format)
@@ -214,7 +211,6 @@ namespace storage
             }
             return true;
         }
-        ///////////////////////////////////////////
         // 目录操作
         // 以下三个函数使用c++17中文件系统给的库函数实现
         bool Exists()
